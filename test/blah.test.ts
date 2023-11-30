@@ -1,4 +1,5 @@
 import { buildKylin } from '../src';
+import * as fs from 'fs';
 import { join } from 'path';
 
 describe('blah', () => {
@@ -8,6 +9,8 @@ describe('blah', () => {
       appName: 'godan',
       appId: 'com.electron.godan',
       unpackedDir: join(__dirname, 'static', 'linux-arm64-unpacked'),
+      outputPath: join(__dirname, 'output'),
+      version: '0.1.0',
       controlFile: {
         Package: 'godan',
         Version: '0.1.0',
@@ -24,5 +27,10 @@ describe('blah', () => {
       },
       svgPath: join(__dirname, 'static', 'icon.svg'),
     });
+
+    // godan_0.1.0_arm64.deb
+
+    const filePath = join(__dirname, 'output', 'godan_0.1.0_arm64.deb');
+    expect(fs.existsSync(filePath)).toBeTruthy();
   });
 });

@@ -25,6 +25,7 @@ type BuildOptions = {
   appId: string,
   unpackedDir: string,
   outputPath?: string;
+  version: string,
   controlFile: ControlFileTypes,
   desktopFile: DesktopFileTypes,
   svgPath: string,
@@ -50,10 +51,11 @@ function getTheFilePathToBeCreated(options: {
   appName: string,
   appId: string,
   outputPath: string;
+  version: string,
 }) {
-  const { appName, appId, outputPath } = options;
+  const { appName, appId, outputPath, version } = options;
 
-  const projectTemplateDir = join(outputPath, appId);
+  const projectTemplateDir = join(outputPath, `${appName}_${version}`);
   fs.mkdirSync(join(projectTemplateDir, 'DEBIAN'), { recursive: true });
   fs.writeFileSync(join(projectTemplateDir, 'DEBIAN', 'compat'), '13');
   const controlFilePath = join(projectTemplateDir, 'DEBIAN', 'control');
@@ -78,30 +80,26 @@ function getTheFilePathToBeCreated(options: {
 
 
 export function buildKylin(options: BuildOptions) {
-  const { appName, appId, outputPath = join(process.cwd(), 'output') } = options;
+  const { appName, appId, outputPath = join(process.cwd(), 'output'), version } = options;
 
-  console.info('outputPath', outputPath);
   const {
     projectTemplateDir,
     controlFilePath,
     execFilesPath,
     desktopFilePath,
     iconFilePath,
-  } = getTheFilePathToBeCreated({ appName, appId, outputPath });
+  } = getTheFilePathToBeCreated({ appName, appId, outputPath, version });
 
-  console.info('controlFilePath', controlFilePath);
   fs.writeFileSync(controlFilePath, createControlFile(options.controlFile));
 
-  console.info('execFilesPath', execFilesPath);
   execSync(`cp -r ${options.unpackedDir}/* ${execFilesPath}`);
 
-  console.info('desktopFilePath', desktopFilePath);
   fs.writeFileSync(desktopFilePath, createDesktopFile(options.desktopFile));
   
-  console.info('iconFilePath', iconFilePath);
   execSync(`cp ${options.svgPath} ${iconFilePath}`);
 
-  execSync(`fakeroot dpkg-deb -b ${projectTemplateDir} ${outputPath}`);
+  // https://github.com/frankaemika/franka_ros/issues/101  Now fakeroot shouldn't be needed anymore. 
+  execSync(`dpkg-deb -b ${projectTemplateDir} ${outputPath}`);
 }
 
 function createControlFile(options: ControlFileTypes) {
