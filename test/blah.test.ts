@@ -1,6 +1,7 @@
 import { buildKylin } from '../src';
 import * as fs from 'fs';
 import { join } from 'path';
+import { execSync } from 'child_process';
 
 describe('blah', () => {
   it('works', () => {
@@ -28,8 +29,9 @@ describe('blah', () => {
       svgPath: join(__dirname, 'static', 'icon.svg'),
     });
 
-    // godan_0.1.0_arm64.deb
-
+    // ls -a output file
+    execSync(`ls -al ${join(__dirname, 'output')}`);
+    
     const filePath = join(__dirname, 'output', 'godan_0.1.0_arm64.deb');
     expect(fs.existsSync(filePath)).toBeTruthy();
   });
